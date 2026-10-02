@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brooke Thompson | Rutgers Business School Portfolio</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        rutgers: {
+                            red: '#CC0033',
+                            darkred: '#8A0022',
+                            lightred: '#FF1A4D',
+                            slate: '#0F172A',
+                            gray: '#1F2937'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cc0033;
+            border-radius: 4px;
+        }
+        .glass-card {
+            background: rgba(30, 41, 59, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .scarlet-gradient {
+            background: linear-gradient(135deg, #CC0033 0%, #8A0022 100%);
+        }
+        .text-gradient {
+            background: linear-gradient(135deg, #FFFFFF 30%, #F87171 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        /* Edit Mode Visual Cues */
+        body.edit-mode [contenteditable="true"] {
+            outline: 2px dashed #CC0033;
+            outline-offset: 4px;
+            border-radius: 4px;
+            background-color: rgba(204, 0, 51, 0.08);
+            transition: all 0.2s ease;
+        }
+        body.edit-mode [contenteditable="true"]:hover {
+            background-color: rgba(204, 0, 51, 0.18);
+        }
+        body.edit-mode .edit-only {
+            display: inline-flex !important;
+        }
+        .edit-only {
+            display: none !important;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased selection:bg-rutgers-red selection:text-white pb-12">
+
+    <!-- Top Persistent Control Bar -->
+    <div class="sticky top-0 z-50 bg-slate-900/95 border-b border-slate-800 backdrop-blur-md px-4 py-2.5 text-xs sm:text-sm shadow-xl">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center space-x-3">
+                <span id="mode-badge" class="px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span>View Mode</span>
+                </span>
+                <span class="text-slate-400 text-xs hidden sm:inline">Toggle Edit Mode to customize text, image, and data directly.</span>
+            </div>
+
+            <!-- Action Buttons Toolbar -->
+            <div class="flex items-center flex-wrap gap-2">
+                <button id="toggle-edit-mode" class="px-3 py-1.5 rounded-lg bg-rutgers-red hover:bg-rutgers-darkred text-white font-semibold transition-all flex items-center space-x-1.5 shadow-md">
+                    <i class="fa-solid fa-pen-to-square text-xs" id="edit-icon"></i>
+                    <span id="edit-mode-text">Enable Edit Mode</span>
+                </button>
+                
+                <button id="save-data-btn" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold transition-all flex items-center space-x-1">
+                    <i class="fa-solid fa-floppy-disk text-emerald-400"></i>
+                    <span>Save</span>
+                </button>
+
+                <button id="export-json-btn" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold transition-all flex items-center space-x-1" title="Export Portfolio JSON">
+                    <i class="fa-solid fa-download text-blue-400"></i>
+                    <span class="hidden md:inline">Export JSON</span>
+                </button>
+
+                <label class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold transition-all cursor-pointer flex items-center space-x-1" title="Import Data">
+                    <i class="fa-solid fa-upload text-amber-400"></i>
+                    <span class="hidden md:inline">Import</span>
+                    <input type="file" id="import-json-input" accept=".json" class="hidden">
+                </label>
+
+                <button id="reset-default-btn" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-red-950 text-slate-400 hover:text-red-300 border border-slate-700 text-xs font-semibold transition-all" title="Reset to Brooke Thompson Default">
+                    <i class="fa-solid fa-rotate-left"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Header -->
+    <header class="w-full bg-slate-950/80 border-b border-slate-800/80 sticky top-12 z-40 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <a href="#home" class="flex items-center space-x-3 group">
+                <div class="w-9 h-9 rounded-lg scarlet-gradient flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-rutgers-red/30">
+                    R
+                </div>
+                <div>
+                    <span data-bind="name" class="block font-bold text-base tracking-tight text-white">Brooke Thompson</span>
+                    <span data-bind="school" class="block text-[10px] text-slate-400 font-medium">Rutgers Business School</span>
+                </div>
+            </a>
+
+            <nav class="hidden md:flex items-center space-x-6 text-xs font-medium">
+                <a href="#home" class="text-slate-300 hover:text-rutgers-red transition-colors">Home</a>
+                <a href="#about" class="text-slate-300 hover:text-rutgers-red transition-colors">About</a>
+                <a href="#resume" class="text-slate-300 hover:text-rutgers-red transition-colors">Resume</a>
+                <a href="#skills" class="text-slate-300 hover:text-rutgers-red transition-colors">Skills</a>
+                <a href="#projects" class="text-slate-300 hover:text-rutgers-red transition-colors">Projects</a>
+                <a href="#contact" class="px-3 py-1.5 rounded-lg scarlet-gradient text-white shadow-md hover:opacity-90 transition-all">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="pt-12 pb-16 relative overflow-hidden">
+        <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[450px] h-[450px] bg-rutgers-red/15 rounded-full blur-[120px] pointer-events-none"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+                
+                <div class="lg:col-span-7 space-y-5 text-center lg:text-left">
+                    <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-rutgers-red text-xs font-semibold">
+                        <span class="w-2 h-2 rounded-full bg-rutgers-red animate-ping"></span>
+                        <span data-bind="badge">Rutgers Business School • Class of 2026</span>
+                    </div>
+
+                    <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
+                        Hi, I'm <span data-bind="name" class="text-gradient">Brooke Thompson</span>
+                    </h1>
+
+                    <p data-bind="tagline" class="text-lg sm:text-xl text-slate-300 font-medium">
+                        Business Leadership & Management Student
+                    </p>
+
+                    <p data-bind="heroBio" class="text-sm sm:text-base text-slate-400 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
+                        Driven by strategic vision, team synergy, and operational excellence. Passionate about leveraging data-backed insights and cross-functional leadership to power business transformation.
+                    </p>
+
+                    <div class="flex flex-wrap items-center justify-center lg:justify-start gap-3 pt-2">
+                        <a href="#projects" class="px-5 py-3 rounded-xl scarlet-gradient text-white text-xs font-semibold shadow-lg shadow-rutgers-red/25 hover:opacity-90 transition-all flex items-center space-x-2">
+                            <span>Explore Projects</span>
+                            <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                        </a>
+                        <a href="#resume" class="px-5 py-3 rounded-xl bg-slate-900 border border-slate-700 text-slate-200 text-xs font-semibold hover:border-slate-500 transition-all flex items-center space-x-2">
+                            <i class="fa-solid fa-file-lines text-rutgers-red"></i>
+                            <span>View Resume</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Hero Profile Card / Image Upload Component -->
+                <div class="lg:col-span-5 flex justify-center">
+                    <div class="relative w-full max-w-sm">
+                        <div class="absolute -inset-1 rounded-3xl scarlet-gradient opacity-20 blur-md"></div>
+                        <div class="relative glass-card rounded-2xl p-6 space-y-5 text-center">
+                            
+                            <!-- Profile Avatar Container -->
+                            <div class="relative w-32 h-32 mx-auto rounded-2xl overflow-hidden scarlet-gradient border-2 border-slate-700 shadow-xl group">
+                                <img id="profile-img" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400" alt="Brooke Thompson Profile" class="w-full h-full object-cover">
+                                
+                                <label class="edit-only absolute inset-0 bg-slate-950/80 cursor-pointer flex flex-col items-center justify-center text-xs text-slate-200 transition-opacity">
+                                    <i class="fa-solid fa-camera text-rutgers-red text-xl mb-1"></i>
+                                    <span class="font-bold">Upload Photo</span>
+                                    <input type="file" id="avatar-upload" accept="image/*" class="hidden">
+                                </label>
+                            </div>
+
+                            <div>
+                                <h3 data-bind="name" class="text-base font-bold text-white">Brooke Thompson</h3>
+                                <p data-bind="major" class="text-xs text-rutgers-red font-semibold">Business Leadership & Management Major</p>
+                                <p data-bind="school" class="text-xs text-slate-400">Rutgers Business School</p>
+                            </div>
+
+                            <div class="pt-3 border-t border-slate-800 space-y-2 text-xs text-left">
+                                <div class="flex items-center space-x-2 text-slate-300">
+                                    <i class="fa-solid fa-envelope text-rutgers-red w-4"></i>
+                                    <span data-bind="email">b.thompson@rutgers.edu</span>
+                                </div>
+                                <div class="flex items-center space-x-2 text-slate-300">
+                                    <i class="fa-solid fa-location-dot text-rutgers-red w-4"></i>
+                                    <span data-bind="location">New Brunswick / Piscataway, NJ</span>
+                                </div>
+                                <div class="flex items-center space-x-2 text-slate-300">
+                                    <i class="fa-brands fa-linkedin text-rutgers-red w-4"></i>
+                                    <span data-bind="linkedin">linkedin.com/in/brooke-thompson-rutgers</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-16 bg-slate-900/50 border-y border-slate-800/80">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-2xl mx-auto mb-10">
+                <h2 class="text-xs font-bold uppercase tracking-widest text-rutgers-red mb-1">About Me</h2>
+                <p class="text-2xl sm:text-3xl font-extrabold text-white">Personal Statement & Mission</p>
+                <div class="w-12 h-1 bg-rutgers-red mx-auto mt-3 rounded-full"></div>
+            </div>
+
+            <div class="glass-card rounded-2xl p-6 sm:p-8 space-y-4 max-w-4xl mx-auto">
+                <div class="flex items-center space-x-3 mb-2">
+                    <i class="fa-solid fa-quote-left text-2xl text-rutgers-red"></i>
+                    <h3 class="text-lg font-bold text-white">Leadership Philosophy</h3>
+                </div>
+                <div data-bind="statement1" class="text-slate-300 text-sm sm:text-base leading-relaxed">
+                    "As an ambitious Business Leadership and Management major at Rutgers Business School, I believe true strategic leadership is built at the intersection of empathy, analytical rigor, and decisive execution. My academic journey focuses on understanding team dynamics, optimizing workflow logistics, and driving operational growth."
+                </div>
+                <div data-bind="statement2" class="text-slate-400 text-xs sm:text-sm leading-relaxed">
+                    Whether analyzing strategic case studies, leading campus organizations, or consulting for local business initiatives, I aim to turn quantitative data into actionable business strategy. I am actively seeking leadership development programs, management consulting, and operations management internships.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Resume Section -->
+    <section id="resume" class="py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-8">
+                <div>
+                    <h2 class="text-xs font-bold uppercase tracking-widest text-rutgers-red mb-1">Experience Timeline</h2>
+                    <p class="text-2xl sm:text-3xl font-extrabold text-white">Education & Leadership Roles</p>
+                </div>
+
+                <button id="add-experience-btn" class="edit-only mt-3 md:mt-0 px-3 py-1.5 rounded-lg bg-rutgers-red text-white text-xs font-semibold hover:bg-rutgers-darkred transition-all items-center space-x-1">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Add Resume Entry</span>
+                </button>
+            </div>
+
+            <!-- Dynamic Resume List -->
+            <div id="experience-container" class="space-y-4">
+                <!-- Rendered dynamically -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section id="skills" class="py-16 bg-slate-900/50 border-y border-slate-800/80">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-8">
+                <div>
+                    <h2 class="text-xs font-bold uppercase tracking-widest text-rutgers-red mb-1">Core Competencies</h2>
+                    <p class="text-2xl sm:text-3xl font-extrabold text-white">Skills Matrix</p>
+                </div>
+
+                <button id="add-skill-btn" class="edit-only mt-3 md:mt-0 px-3 py-1.5 rounded-lg bg-rutgers-red text-white text-xs font-semibold hover:bg-rutgers-darkred transition-all items-center space-x-1">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Add Skill Badge</span>
+                </button>
+            </div>
+
+            <!-- Skills Grid -->
+            <div id="skills-container" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                <!-- Rendered dynamically -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects" class="py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-8">
+                <div>
+                    <h2 class="text-xs font-bold uppercase tracking-widest text-rutgers-red mb-1">Featured Work</h2>
+                    <p class="text-2xl sm:text-3xl font-extrabold text-white">Case Studies & Projects</p>
+                </div>
+
+                <button id="add-project-btn" class="edit-only mt-3 md:mt-0 px-3 py-1.5 rounded-lg bg-rutgers-red text-white text-xs font-semibold hover:bg-rutgers-darkred transition-all items-center space-x-1">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Add New Project</span>
+                </button>
+            </div>
+
+            <!-- Dynamic Projects Grid -->
+            <div id="projects-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Rendered dynamically -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-16 bg-slate-900/50 border-t border-slate-800/80">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-3xl mx-auto glass-card rounded-2xl p-6 sm:p-8 text-center space-y-6">
+                <h2 class="text-xs font-bold uppercase tracking-widest text-rutgers-red">Get In Touch</h2>
+                <h3 class="text-2xl font-extrabold text-white">Connect with Brooke</h3>
+                <p class="text-slate-400 text-xs sm:text-sm">
+                    Interested in discussing corporate internships, leadership development opportunities, or academic collaborations?
+                </p>
+
+                <form id="contact-form" class="space-y-4 text-left">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <input type="text" required placeholder="Your Name" class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs focus:outline-none focus:border-rutgers-red">
+                        <input type="email" required placeholder="Your Email" class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs focus:outline-none focus:border-rutgers-red">
+                    </div>
+                    <textarea rows="3" required placeholder="Your Message" class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-white text-xs focus:outline-none focus:border-rutgers-red"></textarea>
+                    <button type="submit" class="w-full py-3 rounded-xl scarlet-gradient text-white text-xs font-bold shadow-lg hover:opacity-90 transition-all">Send Message</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Project Detail Modal -->
+    <div id="project-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="glass-card rounded-2xl max-w-xl w-full p-6 space-y-4 border border-slate-700 relative">
+            <button id="close-modal-btn" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <span id="modal-tag" class="px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-rutgers-red/20 text-rutgers-red">Category</span>
+            <h3 id="modal-title" class="text-xl font-bold text-white">Project Title</h3>
+            <p id="modal-desc" class="text-xs sm:text-sm text-slate-300 leading-relaxed">Full project description...</p>
+            <div class="pt-3 border-t border-slate-800 text-xs text-slate-400">
+                <span class="font-bold text-slate-300">Tools Used: </span>
+                <span id="modal-tools">Excel, Tableau</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Overlay -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 bg-slate-900 border border-rutgers-red text-white px-4 py-3 rounded-xl shadow-2xl flex items-center space-x-3 transition-all duration-300 transform translate-y-20 opacity-0 pointer-events-none">
+        <i class="fa-solid fa-circle-check text-rutgers-red text-base"></i>
+        <span id="toast-message" class="text-xs font-semibold">Action completed successfully</span>
+    </div>
+
+    <script>
+        // Default Data Model for Brooke Thompson
+        const defaultData = {
+            name: "Brooke Thompson",
+            school: "Rutgers Business School",
+            major: "Business Leadership & Management Major",
+            badge: "Rutgers Business School • Class of 2026",
+            tagline: "Business Leadership & Management Student",
+            heroBio: "Driven by strategic vision, team synergy, and operational excellence. Passionate about leveraging data-backed insights and cross-functional leadership to power business transformation.",
+            email: "b.thompson@rutgers.edu",
+            location: "New Brunswick / Piscataway, NJ",
+            linkedin: "linkedin.com/in/brooke-thompson-rutgers",
+            statement1: '"As an ambitious Business Leadership and Management major at Rutgers Business School, I believe true strategic leadership is built at the intersection of empathy, analytical rigor, and decisive execution. My academic journey focuses on understanding team dynamics, optimizing workflow logistics, and driving operational growth."',
+            statement2: "Whether analyzing strategic case studies, leading campus organizations, or consulting for local business initiatives, I aim to turn quantitative data into actionable business strategy. I am actively seeking leadership development programs, management consulting, and operations management internships.",
+            avatarImg: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400",
+            experiences: [
+                {
+                    id: 1,
+                    role: "Strategic Operations Intern",
+                    company: "Apex Global Solutions • New York, NY",
+                    date: "Summer 2025",
+                    details: "Assisted in analyzing cross-functional workflows, reducing operational process bottlenecks by 14% for key enterprise clients. Engineered Excel dashboards to track weekly KPI performance."
+                },
+                {
+                    id: 2,
+                    role: "President & Team Lead",
+                    company: "Rutgers Student Leadership Association • New Brunswick, NJ",
+                    date: "2024 - Present",
+                    details: "Lead an executive board of 8 officers and oversee student engagement for 150+ members. Oversee a $15,000 annual budget and coordinate corporate mentorship workshops."
+                },
+                {
+                    id: 3,
+                    role: "Management Practicum Consultant",
+                    company: "Rutgers Business School Practicum",
+                    date: "Fall 2024",
+                    details: "Collaborated with a 5-member student consulting team to redesign supply chain routing for a regional logistics provider, resulting in 10% estimated cost savings."
+                }
+            ],
+            skills: [
+                { id: 1, name: "Strategic Planning", level: "Leadership" },
+                { id: 2, name: "Excel Financial Modeling", level: "Analytics" },
+                { id: 3, name: "Cross-Functional Management", level: "Management" },
+                { id: 4, name: "Tableau & PowerBI", level: "Tools" },
+                { id: 5, name: "Agile Project Coordination", level: "Management" },
+                { id: 6, name: "Public Speaking & Pitching", level: "Leadership" },
+                { id: 7, name: "Operations Optimization", level: "Analytics" },
+                { id: 8, name: "Conflict Resolution", level: "Management" }
+            ],
+            projects: [
+                {
+                    id: 1,
+                    title: "Supply Chain Strategy Expansion",
+                    tag: "1st Place Case Winner",
+                    date: "Spring 2025",
+                    desc: "Formulated a 3-year market expansion plan for a regional supplier. Modeled a 22% ROI increase using Excel Solver and custom demand forecasting.",
+                    tools: "Excel, Tableau, SWOT Analysis"
+                },
+                {
+                    id: 2,
+                    title: "Organizational Leadership Audit",
+                    tag: "Consulting Practicum",
+                    date: "Fall 2024",
+                    desc: "Evaluated team communication bottlenecks for a local business entity, presenting structural recommendations adopted by executive management.",
+                    tools: "Qualitative Surveys, Org Design, Stakeholder Mapping"
+                },
+                {
+                    id: 3,
+                    title: "Corporate Sustainability Framework",
+                    tag: "Academic Research",
+                    date: "Spring 2024",
+                    desc: "Researched ESG compliance models across Fortune 500 firms, proposing a balanced scorecard metrics framework for undergraduate leadership study.",
+                    tools: "ESG Analytics, Balanced Scorecard"
+                }
+            ]
+        };
+
+        // App State
+        let appData = JSON.parse(localStorage.getItem('brooke_portfolio_data')) || defaultData;
+        let isEditMode = false;
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            toastMessage.innerText = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+            }, 3000);
+        }
+
+        function saveData() {
+            document.querySelectorAll('[data-bind]').forEach(el => {
+                const key = el.getAttribute('data-bind');
+                if (key) appData[key] = el.innerText.trim();
+            });
+
+            localStorage.setItem('brooke_portfolio_data', JSON.stringify(appData));
+            showToast('Changes saved to local storage!');
+        }
+
+        function render() {
+            // Bind general text fields
+            document.querySelectorAll('[data-bind]').forEach(el => {
+                const key = el.getAttribute('data-bind');
+                if (key && appData[key] !== undefined) {
+                    el.innerText = appData[key];
+                }
+                el.contentEditable = isEditMode ? "true" : "false";
+            });
+
+            // Bind Avatar
+            const profileImg = document.getElementById('profile-img');
+            if (profileImg) profileImg.src = appData.avatarImg;
+
+            // Render Experience
+            const expContainer = document.getElementById('experience-container');
+            expContainer.innerHTML = appData.experiences.map(exp => `
+                <div class="glass-card rounded-xl p-5 relative group">
+                    <button onclick="deleteExperience(${exp.id})" class="edit-only absolute top-4 right-4 text-xs text-red-400 hover:text-red-300 p-1">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-2">
+                        <h3 class="text-base font-bold text-white pr-8" contenteditable="${isEditMode}" onblur="updateExp(${exp.id}, 'role', this.innerText)">${exp.role}</h3>
+                        <span class="text-xs font-semibold text-rutgers-red" contenteditable="${isEditMode}" onblur="updateExp(${exp.id}, 'date', this.innerText)">${exp.date}</span>
+                    </div>
+                    <div class="text-xs text-slate-400 font-medium mb-3" contenteditable="${isEditMode}" onblur="updateExp(${exp.id}, 'company', this.innerText)">${exp.company}</div>
+                    <p class="text-xs sm:text-sm text-slate-300 leading-relaxed" contenteditable="${isEditMode}" onblur="updateExp(${exp.id}, 'details', this.innerText)">${exp.details}</p>
+                </div>
+            `).join('');
+
+            // Render Skills
+            const skillsContainer = document.getElementById('skills-container');
+            skillsContainer.innerHTML = appData.skills.map(skill => `
+                <div class="glass-card rounded-xl p-3 flex items-center justify-between relative group">
+                    <div>
+                        <div class="text-xs font-bold text-white" contenteditable="${isEditMode}" onblur="updateSkill(${skill.id}, 'name', this.innerText)">${skill.name}</div>
+                        <div class="text-[10px] text-slate-400" contenteditable="${isEditMode}" onblur="updateSkill(${skill.id}, 'level', this.innerText)">${skill.level}</div>
+                    </div>
+                    <button onclick="deleteSkill(${skill.id})" class="edit-only text-xs text-red-400 hover:text-red-300 p-1">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            `).join('');
+
+            // Render Projects
+            const projectsContainer = document.getElementById('projects-container');
+            projectsContainer.innerHTML = appData.projects.map(proj => `
+                <div class="glass-card rounded-2xl p-5 flex flex-col justify-between relative group hover:border-rutgers-red/50 transition-all cursor-pointer" onclick="openProjectModal(${proj.id})">
+                    <button onclick="event.stopPropagation(); deleteProject(${proj.id})" class="edit-only absolute top-4 right-4 text-xs text-red-400 hover:text-red-300 p-1 z-10">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <div>
+                        <div class="flex items-center justify-between mb-3 pr-6">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-rutgers-red/20 text-rutgers-red" contenteditable="${isEditMode}" onclick="event.stopPropagation()" onblur="updateProj(${proj.id}, 'tag', this.innerText)">${proj.tag}</span>
+                            <span class="text-[10px] text-slate-400" contenteditable="${isEditMode}" onclick="event.stopPropagation()" onblur="updateProj(${proj.id}, 'date', this.innerText)">${proj.date}</span>
+                        </div>
+                        <h3 class="text-base font-bold text-white mb-2" contenteditable="${isEditMode}" onclick="event.stopPropagation()" onblur="updateProj(${proj.id}, 'title', this.innerText)">${proj.title}</h3>
+                        <p class="text-xs text-slate-400 leading-relaxed mb-4 line-clamp-3" contenteditable="${isEditMode}" onclick="event.stopPropagation()" onblur="updateProj(${proj.id}, 'desc', this.innerText)">${proj.desc}</p>
+                    </div>
+                    <div class="pt-3 border-t border-slate-800 text-[11px] text-slate-300 flex justify-between items-center">
+                        <div>
+                            <span class="text-slate-500 font-semibold">Tools: </span>
+                            <span contenteditable="${isEditMode}" onclick="event.stopPropagation()" onblur="updateProj(${proj.id}, 'tools', this.innerText)">${proj.tools}</span>
+                        </div>
+                        <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-rutgers-red"></i>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Field Update Handlers
+        function updateExp(id, field, val) {
+            const target = appData.experiences.find(x => x.id === id);
+            if (target) target[field] = val.trim();
+        }
+        function updateSkill(id, field, val) {
+            const target = appData.skills.find(x => x.id === id);
+            if (target) target[field] = val.trim();
+        }
+        function updateProj(id, field, val) {
+            const target = appData.projects.find(x => x.id === id);
+            if (target) target[field] = val.trim();
+        }
+
+        function deleteExperience(id) {
+            appData.experiences = appData.experiences.filter(x => x.id !== id);
+            render();
+            showToast('Experience deleted');
+        }
+        function deleteSkill(id) {
+            appData.skills = appData.skills.filter(x => x.id !== id);
+            render();
+            showToast('Skill deleted');
+        }
+        function deleteProject(id) {
+            appData.projects = appData.projects.filter(x => x.id !== id);
+            render();
+            showToast('Project deleted');
+        }
+
+        function openProjectModal(id) {
+            if (isEditMode) return; // Prevent modal popup when editing inline text
+            const proj = appData.projects.find(x => x.id === id);
+            if (!proj) return;
+
+            document.getElementById('modal-title').innerText = proj.title;
+            document.getElementById('modal-tag').innerText = proj.tag;
+            document.getElementById('modal-desc').innerText = proj.desc;
+            document.getElementById('modal-tools').innerText = proj.tools;
+            document.getElementById('project-modal').classList.remove('hidden');
+        }
+
+        // Initialize UI Event Listeners
+        window.onload = function() {
+            render();
+
+            // Modal Close Handler
+            document.getElementById('close-modal-btn').addEventListener('click', () => {
+                document.getElementById('project-modal').classList.add('hidden');
+            });
+            document.getElementById('project-modal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('project-modal')) {
+                    document.getElementById('project-modal').classList.add('hidden');
+                }
+            });
+
+            // Toggle Edit Mode Switch
+            const toggleBtn = document.getElementById('toggle-edit-mode');
+            const modeBadge = document.getElementById('mode-badge');
+            const editModeText = document.getElementById('edit-mode-text');
+
+            toggleBtn.addEventListener('click', () => {
+                isEditMode = !isEditMode;
+                document.body.classList.toggle('edit-mode', isEditMode);
+
+                if (isEditMode) {
+                    modeBadge.className = "px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-rutgers-red/20 text-rutgers-red border border-rutgers-red/30 flex items-center gap-1.5";
+                    modeBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-rutgers-red animate-ping"></span><span>Edit Mode Active</span>`;
+                    editModeText.innerText = "Disable Edit Mode";
+                    showToast('Edit Mode Enabled. Click any highlighted text to modify!');
+                } else {
+                    modeBadge.className = "px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5";
+                    modeBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span><span>View Mode</span>`;
+                    editModeText.innerText = "Enable Edit Mode";
+                    saveData();
+                }
+                render();
+            });
+
+            // Save Control
+            document.getElementById('save-data-btn').addEventListener('click', saveData);
+
+            // Reset Control
+            document.getElementById('reset-default-btn').addEventListener('click', () => {
+                if (confirm('Reset portfolio content back to original Brooke Thompson default template?')) {
+                    appData = JSON.parse(JSON.stringify(defaultData));
+                    localStorage.removeItem('brooke_portfolio_data');
+                    render();
+                    showToast('Portfolio reset to initial state');
+                }
+            });
+
+            // Add Item Event Handlers
+            document.getElementById('add-experience-btn').addEventListener('click', () => {
+                appData.experiences.push({
+                    id: Date.now(),
+                    role: "New Leadership Role / Position",
+                    company: "Company or Organization • Location",
+                    date: "2026",
+                    details: "Add description of responsibilities, leadership outcomes, and metrics..."
+                });
+                render();
+                showToast('New experience entry added');
+            });
+
+            document.getElementById('add-skill-btn').addEventListener('click', () => {
+                appData.skills.push({
+                    id: Date.now(),
+                    name: "New Skill",
+                    level: "Competency"
+                });
+                render();
+                showToast('New skill badge added');
+            });
+
+            document.getElementById('add-project-btn').addEventListener('click', () => {
+                appData.projects.push({
+                    id: Date.now(),
+                    title: "New Strategic Project",
+                    tag: "Case Analysis",
+                    date: "2026",
+                    desc: "Describe business goals, problem methodology, analytical models, and key recommendations...",
+                    tools: "Excel, Tableau, Analytics"
+                });
+                render();
+                showToast('New project card added');
+            });
+
+            // Export JSON
+            document.getElementById('export-json-btn').addEventListener('click', () => {
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData, null, 2));
+                const downloadAnchor = document.createElement('a');
+                downloadAnchor.setAttribute("href", dataStr);
+                downloadAnchor.setAttribute("download", "brooke_thompson_portfolio.json");
+                document.body.appendChild(downloadAnchor);
+                downloadAnchor.click();
+                downloadAnchor.remove();
+                showToast('Portfolio exported to JSON file');
+            });
+
+            // Import JSON
+            document.getElementById('import-json-input').addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    try {
+                        const imported = JSON.parse(event.target.result);
+                        appData = imported;
+                        saveData();
+                        render();
+                        showToast('Portfolio data imported successfully!');
+                    } catch (err) {
+                        alert('Invalid portfolio JSON file format.');
+                    }
+                };
+                reader.readAsText(file);
+            });
+
+            // Photo Uploader
+            document.getElementById('avatar-upload').addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        appData.avatarImg = event.target.result;
+                        document.getElementById('profile-img').src = event.target.result;
+                        saveData();
+                        showToast('Profile photo updated');
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // Contact Form Listener
+            document.getElementById('contact-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                showToast('Message sent to Brooke!');
+                e.target.reset();
+            });
+        };
+    </script>
+</body>
+</html>
